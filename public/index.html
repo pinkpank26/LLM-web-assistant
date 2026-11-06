@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM-ассистент веб-разработчика</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css">
+  <script>
+    // Тема выставляется до первой отрисовки, иначе при загрузке мелькает светлый фон.
+    (() => {
+      let theme = 'light';
+      try {
+        const saved = localStorage.getItem('llm-assistant:theme');
+        theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch { /* приватный режим: остаётся светлая тема */ }
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
+</head>
+<body>
+  <header class="header">
+    <div>
+      <h1>LLM-ассистент веб-разработчика</h1>
+      <p class="model">Модель: <span id="model-name">загрузка…</span></p>
+    </div>
+    <button type="button" id="theme-btn" class="ghost" aria-pressed="false">
+      <span id="theme-label">Тёмная тема</span>
+    </button>
+  </header>
+
+  <main class="layout">
+    <div class="column">
+      <section class="panel" aria-labelledby="input-title">
+        <h2 id="input-title">Запрос</h2>
+        <form id="assist-form">
+          <label for="mode">Режим работы</label>
+          <select id="mode" name="mode"></select>
+
+          <label for="input">Описание, вопрос или код</label>
+          <textarea id="input" name="input" rows="12" maxlength="8000"
+            placeholder="Например: карточка товара с изображением, ценой и кнопкой «В корзину»"
+            required></textarea>
+          <div class="counter"><span id="char-count">0</span> / 8000 · Ctrl+Enter - отправить</div>
+
+          <div class="buttons">
+            <button type="submit" id="submit-btn">Отправить</button>
+            <button type="button" id="stop-btn" class="secondary" disabled>Остановить</button>
+            <button type="button" id="new-btn" class="secondary">Новый диалог</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="history-title">
+        <div class="panel__head">
+          <h2 id="history-title">История чатов</h2>
+          <button type="button" id="clear-history-btn" class="secondary small">Очистить всё</button>
+        </div>
+        <p id="history-empty" class="hint">Сохранённых диалогов пока нет.</p>
+        <ul id="chat-list" class="chat-list"></ul>
+      </section>
+    </div>
+
+    <section class="panel" aria-labelledby="output-title">
+      <h2 id="output-title">Диалог</h2>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+      <div id="chat" class="chat" aria-live="polite"></div>
+
+      <div id="preview-block" hidden>
+        <div class="panel__head">
+          <h3>Предпросмотр компонента</h3>
+          <div class="preview-controls">
+            <label class="preview-bg" for="preview-bg">Фон</label>
+            <input type="color" id="preview-bg" value="#ffffff">
+            <button type="button" id="preview-bg-reset" class="secondary small">Сброс</button>
+          </div>
+        </div>
+        <!-- sandbox изолирует сгенерированный код от основной страницы -->
+        <iframe id="preview" sandbox="allow-scripts" title="Предпросмотр"></iframe>
+        <button type="button" id="copy-btn" class="secondary">Скопировать код</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
